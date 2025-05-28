@@ -1,35 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
+import Board, { type Marks } from './Board';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  //
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [step, setStep] = useState(0);
+
+  const marks: Marks = history[step];
+  const isNextX: boolean = step % 2 === 0;
+  const winner: string | null = whoWinner(marks);
+
+  function handlePlay(m: Marks): void {
+    //
+    const nextHistory = history.slice(0, step + 1);
+    nextHistory.push(m);
+    setHistory(nextHistory);
+    setStep(step + 1);
+  }
+
+  function whoWinner(m: Marks) : string | null {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+
+    for(const [a, b, c] of lines) {
+      if(m[a] === m[b] && m[b] === m[c]) {
+        return m[a];
+      }
+    }
+    return null;
+  }
+
+  function jumpTo(step: number) : void{
+    setStep(step);
+  } 
+
+  const historyView = history.map((marks: Marks, idx) => {
+    let className = 'jump-btn';
+    if(idx === step) className += ' current';
+    let label = (idx === 0 ? 'Go to start' : `Go to #${idx}`);
+    return (
+      <li>
+        <button className={className} onClick={() => jumpTo(idx)}>{label}</button>
+      </li>
+    );
+  });
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className='game-app'>
+      <div className="board">
+        <Board marks={marks} isNextX={isNextX} winner={winner} onPlay={handlePlay} />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div className="history">
+        <ol>{historyView}</ol>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+    );
 }
-
-export default App
