@@ -2,10 +2,12 @@ import { useState } from 'react';
 import './App.css';
 import Board, { type Marks } from './Board';
 
+type MarksHistory = Marks[];
+
 export default function App() {
   //
-  const [history, setHistory] = useState([Array(9).fill(null)]);
-  const [step, setStep] = useState(0);
+  const [history, setHistory] = useState<MarksHistory>([Array(9).fill(null)]);
+  const [step, setStep] = useState<number>(0);
 
   const marks: Marks = history[step];
   const isNextX: boolean = step % 2 === 0;
